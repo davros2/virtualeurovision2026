@@ -103,7 +103,17 @@ const VotingCard = ({ country, friendName, jurorCountry, sessionId, onSave }) =>
   };
 
   return (
-    <div className="main-card" style={{ flex: '0 0 380px', backgroundColor: '#0b101e', color: 'white', borderRadius: '32px', boxShadow: '0 30px 60px rgba(0,0,0,0.8)', overflow: 'hidden', border: '1px solid rgba(255,255,255,0.05)' }}>
+    <div className="main-card" style={{ 
+    flex: '1 1 380px', 
+    maxWidth: '420px', 
+    minWidth: '320px', 
+    backgroundColor: '#0b101e', 
+    color: 'white', 
+    borderRadius: '32px', 
+    boxShadow: '0 30px 60px rgba(0,0,0,0.8)', 
+    overflow: 'hidden', 
+    border: '1px solid rgba(255,255,255,0.05)' 
+  }}>
       <div style={{ width: '100%', height: '240px', position: 'relative', backgroundColor: '#000' }}>
         <img src={`/flags/${country.name}.png`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={country.name} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '120px', background: 'linear-gradient(to top, #0b101e, transparent)' }}></div>
@@ -115,13 +125,13 @@ const VotingCard = ({ country, friendName, jurorCountry, sessionId, onSave }) =>
             <p style={{ fontSize: '14px', color: '#94a3b8', fontStyle: 'italic', margin: '4px 0 0 0' }}>"{country.song}"</p>
         </div>
 
-        <div style={{ display: 'flex', gap: '20px', marginBottom: '28px' }}>
-          <div style={{ flex: 1 }}>
+        <div style={{ display: 'flex', gap: '20px', marginBottom: '28px', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 140px' }}>
             <h3 style={{ fontSize: '11px', fontWeight: 900, color: cyan, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '16px', textAlign: 'center' }}>Jury</h3>
             <ScoreSlider label="Vocals" value={scores.s1} onChange={(v) => setScores({...scores, s1: v})} accentColor={cyan} />
             <ScoreSlider label="Video" value={scores.s2} onChange={(v) => setScores({...scores, s2: v})} accentColor={cyan} />
           </div>
-          <div style={{ flex: 1 }}>
+          <div style={{ flex: '1 1 140px' }}>
             <h3 style={{ fontSize: '11px', fontWeight: 900, color: magenta, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '16px', textAlign: 'center' }}>Televote</h3>
             <ScoreSlider label="Vibe" value={scores.s3} onChange={(v) => setScores({...scores, s3: v})} accentColor={magenta} />
             <ScoreSlider label="Virality" value={scores.s4} onChange={(v) => setScores({...scores, s4: v})} accentColor={magenta} />
@@ -236,7 +246,7 @@ export default function App() {
         <div style={{ fontSize: '13px', fontWeight: 800, marginTop: '5px', color: '#00e5ff' }}>ACT {currentIndex + 1} OF {countries.length}</div>
       </header>
 
-      <div className="dashboard" style={{display: 'flex', justifyContent: 'center', gap: '20px', maxWidth: '100%', margin: '0 auto', padding: '0 10px', flexWrap: 'wrap'}}>
+      <div className="dashboard" style={{display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: '20px', maxWidth: '1400px', margin: '0 auto', padding: '0 20px 40px 20px', flexWrap: 'wrap'}}>
         <Leaderboard title="My Jury Points" history={votingHistory} type="jury" accentColor="#00e5ff" />
         <VotingCard country={countries[currentIndex]} friendName={friendName} jurorCountry={jurorCountry} sessionId={currentSessionId}
           onSave={(data) => {
