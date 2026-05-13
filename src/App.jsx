@@ -236,7 +236,7 @@ export default function App() {
         <div style={{ fontSize: '13px', fontWeight: 800, marginTop: '5px', color: '#00e5ff' }}>ACT {currentIndex + 1} OF {countries.length}</div>
       </header>
 
-      <div className="dashboard">
+      <div className="dashboard" style={{display: 'flex', justifyContent: 'center', gap: '20px', maxWidth: '100%', margin: '0 auto', padding: '0 10px', flexWrap: 'wrap'}}>
         <Leaderboard title="My Jury Points" history={votingHistory} type="jury" accentColor="#00e5ff" />
         <VotingCard country={countries[currentIndex]} friendName={friendName} jurorCountry={jurorCountry} sessionId={currentSessionId}
           onSave={(data) => {
