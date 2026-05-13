@@ -40,7 +40,7 @@ const Leaderboard = ({ title, history, type, accentColor }) => {
   const eurovisionPoints = [12, 10, 8, 7, 6, 5, 4, 3, 2, 1];
 
   return (
-    <div className="leaderboard-container" style={{ flex: 1, minWidth: '300px', backgroundColor: '#0b101e', borderRadius: '24px', padding: '24px', border: `1px solid ${accentColor}40`, boxShadow: `0 10px 30px rgba(0,0,0,0.5)` }}>
+    <div className="leaderboard-container" style={{ flex: '1 1 300px', width: '100%', backgroundColor: '#0b101e', borderRadius: '24px', padding: '24px', border: `1px solid ${accentColor}40`, boxShadow: `0 10px 30px rgba(0,0,0,0.5)` }}>
       <h3 style={{ fontSize: '14px', fontWeight: 900, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.15em', borderBottom: `1px solid ${accentColor}40`, paddingBottom: '12px', marginBottom: '20px', textAlign: 'center' }}>
         {title}
       </h3>
@@ -104,16 +104,16 @@ const VotingCard = ({ country, friendName, jurorCountry, sessionId, onSave }) =>
 
   return (
     <div className="main-card" style={{ 
-    flex: '1 1 380px', 
-    maxWidth: '420px', 
-    minWidth: '320px', 
-    backgroundColor: '#0b101e', 
-    color: 'white', 
-    borderRadius: '32px', 
-    boxShadow: '0 30px 60px rgba(0,0,0,0.8)', 
-    overflow: 'hidden', 
-    border: '1px solid rgba(255,255,255,0.05)' 
-  }}>
+      flex: '1 1 300px', // Lowered flex-basis to allow shrinking
+      maxWidth: '420px', 
+      width: '100%', 
+      backgroundColor: '#0b101e', 
+      color: 'white', 
+      borderRadius: '32px', 
+      boxShadow: '0 30px 60px rgba(0,0,0,0.8)', 
+      overflow: 'hidden', 
+      border: '1px solid rgba(255,255,255,0.05)' 
+    }}>
       <div style={{ width: '100%', height: '240px', position: 'relative', backgroundColor: '#000' }}>
         <img src={`/flags/${country.name}.png`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={country.name} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '120px', background: 'linear-gradient(to top, #0b101e, transparent)' }}></div>
@@ -126,12 +126,12 @@ const VotingCard = ({ country, friendName, jurorCountry, sessionId, onSave }) =>
         </div>
 
         <div style={{ display: 'flex', gap: '15px', marginBottom: '28px', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1 1 200px', minWidth: '0' }}>
+          <div style={{ flex: '1 1 140px', minWidth: '0' }}>
             <h3 style={{ fontSize: '11px', fontWeight: 900, color: cyan, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '16px', textAlign: 'center' }}>Jury</h3>
             <ScoreSlider label="Vocals" value={scores.s1} onChange={(v) => setScores({...scores, s1: v})} accentColor={cyan} />
             <ScoreSlider label="Video" value={scores.s2} onChange={(v) => setScores({...scores, s2: v})} accentColor={cyan} />
           </div>
-          <div style={{ flex: '1 1 200px', minWidth: '0' }}>
+          <div style={{ flex: '1 1 140px', minWidth: '0' }}>
             <h3 style={{ fontSize: '11px', fontWeight: 900, color: magenta, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '16px', textAlign: 'center' }}>Televote</h3>
             <ScoreSlider label="Vibe" value={scores.s3} onChange={(v) => setScores({...scores, s3: v})} accentColor={magenta} />
             <ScoreSlider label="Virality" value={scores.s4} onChange={(v) => setScores({...scores, s4: v})} accentColor={magenta} />
@@ -212,7 +212,6 @@ export default function App() {
     { name: 'United Kingdom', artist: 'Look Mum No Computer', song: 'Eins, Zwei, Drei', runningOrder: null }
   ];
 
-  // Restored Filter Logic
   const countries = allCountries
     .filter(c => !excludedCountries.includes(c.name) && c.runningOrder !== null)
     .sort((a, b) => a.runningOrder - b.runningOrder);
@@ -231,16 +230,31 @@ export default function App() {
   }
 
   if (currentIndex >= countries.length) {
-    return <div style={{ color: 'white', textAlign: 'center', paddingTop: '100px' }}><h1>Transmission Complete</h1></div>;
+    return (
+        <div style={{ minHeight: '100vh', backgroundColor: '#050810', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
+            <h1>Transmission Complete</h1>
+        </div>
+    );
   }
 
   return (
-    <div style={{ backgroundColor: '#050810', minHeight: '100vh', padding: '20px', color: 'white', fontFamily: '"Inter", sans-serif' }}>
+    <div style={{ backgroundColor: '#050810', minHeight: '100vh', padding: '20px 10px', color: 'white', fontFamily: '"Inter", sans-serif' }}>
       <style>{`
-        .dashboard { display: flex; justify-content: center; gap: 40px; max-width: 1200px; margin: 0 auto; }
-        @media (max-width: 1100px) { .dashboard { flex-direction: column; align-items: center; } }
-        { box-sizing: border-box; }
-         body, html {overflow-x: hidden; width: 100%; position: relative; } img {max-width: 100%; height: auto;}}
+        * { box-sizing: border-box; }
+        body, html { overflow-x: hidden; width: 100%; margin: 0; padding: 0; }
+        img { max-width: 100%; height: auto; }
+        .dashboard { 
+          display: flex; 
+          justify-content: center; 
+          align-items: flex-start; 
+          gap: 20px; 
+          max-width: 1400px; 
+          margin: 0 auto; 
+          flex-wrap: wrap; 
+        }
+        @media (max-width: 1100px) { 
+          .dashboard { flex-direction: column; align-items: center; } 
+        }
       `}</style>
 
       <header style={{ textAlign: 'center', marginBottom: '30px' }}>
@@ -248,7 +262,7 @@ export default function App() {
         <div style={{ fontSize: '13px', fontWeight: 800, marginTop: '5px', color: '#00e5ff' }}>ACT {currentIndex + 1} OF {countries.length}</div>
       </header>
 
-      <div className="dashboard" style={{display: 'flex', justifyContent: 'center', alignItems: 'flex-start', gap: '20px', maxWidth: '1400px', margin: '0 auto', padding: '0 20px 40px 20px', flexWrap: 'wrap'}}>
+      <div className="dashboard">
         <Leaderboard title="My Jury Points" history={votingHistory} type="jury" accentColor="#00e5ff" />
         <VotingCard country={countries[currentIndex]} friendName={friendName} jurorCountry={jurorCountry} sessionId={currentSessionId}
           onSave={(data) => {
