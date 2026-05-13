@@ -40,7 +40,16 @@ const Leaderboard = ({ title, history, type, accentColor }) => {
   const eurovisionPoints = [12, 10, 8, 7, 6, 5, 4, 3, 2, 1];
 
   return (
-    <div className="leaderboard-container" style={{ flex: '1 1 300px', width: '100%', backgroundColor: '#0b101e', borderRadius: '24px', padding: '24px', border: `1px solid ${accentColor}40`, boxShadow: `0 10px 30px rgba(0,0,0,0.5)` }}>
+    <div className="leaderboard-container" style={{ 
+      flex: '0 0 auto', // Prevent height capping in vertical mode
+      width: '100%', 
+      maxWidth: '420px',
+      backgroundColor: '#0b101e', 
+      borderRadius: '24px', 
+      padding: '24px', 
+      border: `1px solid ${accentColor}40`, 
+      boxShadow: `0 10px 30px rgba(0,0,0,0.5)` 
+    }}>
       <h3 style={{ fontSize: '14px', fontWeight: 900, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.15em', borderBottom: `1px solid ${accentColor}40`, paddingBottom: '12px', marginBottom: '20px', textAlign: 'center' }}>
         {title}
       </h3>
@@ -104,17 +113,16 @@ const VotingCard = ({ country, friendName, jurorCountry, sessionId, onSave }) =>
 
   return (
     <div className="main-card" style={{ 
-      flex: '1 1 300px', // Lowered flex-basis to allow shrinking
+      flex: '0 0 auto', // Crucial fix for image_e63889.png
       maxWidth: '420px', 
       width: '100%', 
       backgroundColor: '#0b101e', 
       color: 'white', 
       borderRadius: '32px', 
       boxShadow: '0 30px 60px rgba(0,0,0,0.8)', 
-      overflow: 'hidden', 
       border: '1px solid rgba(255,255,255,0.05)' 
     }}>
-      <div style={{ width: '100%', height: '240px', position: 'relative', backgroundColor: '#000' }}>
+      <div style={{ width: '100%', height: '240px', position: 'relative', backgroundColor: '#000', borderRadius: '32px 32px 0 0', overflow: 'hidden' }}>
         <img src={`/flags/${country.name}.png`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={country.name} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '120px', background: 'linear-gradient(to top, #0b101e, transparent)' }}></div>
       </div>
