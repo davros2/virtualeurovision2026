@@ -119,19 +119,19 @@ const VotingCard = ({ country, friendName, jurorCountry, sessionId, onSave }) =>
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '120px', background: 'linear-gradient(to top, #0b101e, transparent)' }}></div>
       </div>
 
-      <div style={{ padding: '0 28px 28px 28px', marginTop: '-30px', position: 'relative', zIndex: 2 }}>
+      <div style={{ padding: '0 15px 20px 15px', marginTop: '-30px', position: 'relative', zIndex: 2 }}>
         <div style={{ textAlign: 'center', marginBottom: '24px' }}>
             <p style={{ fontSize: '20px', fontWeight: 900, textTransform: 'uppercase', letterSpacing: '0.1em', margin: 0 }}>{country.artist}</p>
             <p style={{ fontSize: '14px', color: '#94a3b8', fontStyle: 'italic', margin: '4px 0 0 0' }}>"{country.song}"</p>
         </div>
 
-        <div style={{ display: 'flex', gap: '20px', marginBottom: '28px', flexWrap: 'wrap' }}>
-          <div style={{ flex: '1 1 140px' }}>
+        <div style={{ display: 'flex', gap: '15px', marginBottom: '28px', flexWrap: 'wrap' }}>
+          <div style={{ flex: '1 1 200px', minWidth: '0' }}>
             <h3 style={{ fontSize: '11px', fontWeight: 900, color: cyan, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '16px', textAlign: 'center' }}>Jury</h3>
             <ScoreSlider label="Vocals" value={scores.s1} onChange={(v) => setScores({...scores, s1: v})} accentColor={cyan} />
             <ScoreSlider label="Video" value={scores.s2} onChange={(v) => setScores({...scores, s2: v})} accentColor={cyan} />
           </div>
-          <div style={{ flex: '1 1 140px' }}>
+          <div style={{ flex: '1 1 200px', minWidth: '0' }}>
             <h3 style={{ fontSize: '11px', fontWeight: 900, color: magenta, textTransform: 'uppercase', letterSpacing: '0.15em', marginBottom: '16px', textAlign: 'center' }}>Televote</h3>
             <ScoreSlider label="Vibe" value={scores.s3} onChange={(v) => setScores({...scores, s3: v})} accentColor={magenta} />
             <ScoreSlider label="Virality" value={scores.s4} onChange={(v) => setScores({...scores, s4: v})} accentColor={magenta} />
@@ -239,6 +239,8 @@ export default function App() {
       <style>{`
         .dashboard { display: flex; justify-content: center; gap: 40px; max-width: 1200px; margin: 0 auto; }
         @media (max-width: 1100px) { .dashboard { flex-direction: column; align-items: center; } }
+        { box-sizing: border-box; }
+         body, html {overflow-x: hidden; width: 100%; position: relative; } img {max-width: 100%; height: auto;}}
       `}</style>
 
       <header style={{ textAlign: 'center', marginBottom: '30px' }}>
