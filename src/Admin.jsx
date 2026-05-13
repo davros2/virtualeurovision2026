@@ -15,7 +15,16 @@ export default function Admin() {
     const fetchJuryResults = async () => {
         try {
             const res = await fetch(SCRIPT_URL);
+            
+            if (!res.ok) {
+                throw new Error(`HTTP Error: ${res.status} ${res.statusText}`);
+            }
+            
             const raw = await res.json();
+            
+            if (!Array.isArray(raw)) {
+                throw new Error("Invalid response: expected an array");
+            }
             
             const grouped = raw.reduce((acc, row) => {
                 const juror = row["Juror Name"] || row["Juror"];
@@ -32,7 +41,10 @@ export default function Admin() {
             }));
 
             setLiveData(processed);
-        } catch (e) { alert("Data fetch failed"); }
+        } catch (e) { 
+            console.error("Data fetch error:", e);
+            alert(`Data fetch failed: ${e.message}`); 
+        }
     };
 
     // Calculate Grand Totals across ALL jurors
@@ -53,6 +65,7 @@ export default function Admin() {
                 @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
                 .reveal { animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
                 .grid-item { transition: all 0.5s ease; }
+                .admin-dock:hover { opacity: 1 !important; }
             `}</style>
 
             {!liveData.length ? (
@@ -106,7 +119,7 @@ export default function Admin() {
             )}
 
             {/* Hidden Control Panel (Doesn't show on TV if you keep mouse off it) */}
-            <div style={adminStyles.dock}>
+            <div className="admin-dock" style={adminStyles.dock}>
                 <button onClick={() => setView('reveal')}>Reveal View</button>
                 <button onClick={() => setView('leaderboard')}>Leaderboard View</button>
                 <div style={{ width: '2px', background: '#334155', margin: '0 10px' }} />
@@ -134,6 +147,3 @@ const adminStyles = {
     leaderboardRow: { background: '#0b101e', padding: '15px 25px', display: 'flex', justifyContent: 'space-between', fontWeight: 700, borderRadius: '8px', border: '1px solid #ffffff10' },
     dock: { position: 'fixed', bottom: 0, left: 0, right: 0, padding: '15px', background: 'rgba(0,0,0,0.9)', display: 'flex', gap: '10px', justifyContent: 'center', opacity: 0.1, transition: 'opacity 0.3s' },
 };
-
-// Add hover effect to dock via JS
-adminStyles.dock[':hover'] = { opacity: 1 };
