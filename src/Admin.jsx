@@ -27,17 +27,29 @@ export default function Admin() {
             }
             
             const grouped = raw.reduce((acc, row) => {
-                const juror = row["Juror Name"] || row["Juror"];
+                const juror = row["Juror"];
                 if (!juror) return acc;
-                if (!acc[juror]) acc[juror] = { name: juror, location: row["Station Location"] || "Unknown", scores: [] };
-                const juryTotal = parseInt(row["Jury Vocals"] || 0) + parseInt(row["Jury Video"] || 0);
-                acc[juror].scores.push({ country: row["Country"], total: juryTotal });
+                if (!acc[juror]) acc[juror] = { name: juror, location: row["Station Location"] || "Unknown", juryScores: [], teleScores: [] };
+                const totalJury = parseInt(row["Total Jury"] || 0);
+                const totalTele = parseInt(row["Total Tele"] || 0);
+                const juryPts = parseInt(row["Jury Pts"] || 0);
+                const telePts = parseInt(row["Tele Pts"] || 0);
+                const country = row["Song"] || row["Country"]; // Try Song first, fallback to Country
+                if (country) {
+                    if (juryPts > 0) {
+                        acc[juror].juryScores.push({ country: country, score: totalJury, pts: juryPts });
+                    }
+                    if (telePts > 0) {
+                        acc[juror].teleScores.push({ country: country, score: totalTele, pts: telePts });
+                    }
+                }
                 return acc;
             }, {});
 
             const processed = Object.values(grouped).map(juror => ({
                 ...juror,
-                top10: [...juror.scores].sort((a, b) => b.total - a.total).slice(0, 10)
+                juryTop10: [...juror.juryScores].sort((a, b) => b.pts - a.pts).slice(0, 10),
+                teleTop10: [...juror.teleScores].sort((a, b) => b.pts - a.pts).slice(0, 10)
             }));
 
             setLiveData(processed);
@@ -51,12 +63,16 @@ export default function Admin() {
     const leaderboard = useMemo(() => {
         const totals = {};
         liveData.forEach(juror => {
-            juror.top10.forEach((score, index) => {
-                const points = EURO_POINTS[index];
-                totals[score.country] = (totals[score.country] || 0) + points;
+            juror.juryTop10.forEach((score) => {
+                totals[score.country] = (totals[score.country] || { jury: 0, tele: 0 });
+                totals[score.country].jury += score.pts;
+            });
+            juror.teleTop10.forEach((score) => {
+                if (!totals[score.country]) totals[score.country] = { jury: 0, tele: 0 };
+                totals[score.country].tele += score.pts;
             });
         });
-        return Object.entries(totals).sort((a, b) => b[1] - a[1]);
+        return Object.entries(totals).sort((a, b) => b[1].jury - a[1].jury);
     }, [liveData]);
 
     return (
@@ -82,9 +98,9 @@ export default function Admin() {
                             <p style={{ letterSpacing: '8px', color: '#64748b', marginBottom: '40px' }}>{liveData[revealIndex]?.location.toUpperCase()}</p>
                             
                             <div style={adminStyles.pointGrid}>
-                                {liveData[revealIndex]?.top10.slice(2).reverse().map((s, i) => (
+                                {liveData[revealIndex]?.juryTop10.slice(2).reverse().map((s, i) => (
                                     <div key={s.country} style={adminStyles.pointRow}>
-                                        <span style={{ color: CYAN, marginRight: '15px' }}>{EURO_POINTS[i+2]}</span> {s.country.toUpperCase()}
+                                        <span style={{ color: CYAN, marginRight: '15px' }}>{s.pts}</span> {s.country.toUpperCase()}
                                     </div>
                                 ))}
                             </div>
@@ -92,13 +108,13 @@ export default function Admin() {
                             {showTen && (
                                 <div className="reveal" style={adminStyles.tenBox}>
                                     <span style={{ fontSize: '14px', display: 'block', opacity: 0.8 }}>10 POINTS</span>
-                                    {liveData[revealIndex]?.top10[1].country.toUpperCase()}
+                                    {liveData[revealIndex]?.juryTop10[1].country.toUpperCase()}
                                 </div>
                             )}
                             {showTwelve && (
                                 <div className="reveal" style={adminStyles.twelveBox}>
                                     <span style={{ fontSize: '18px', display: 'block', opacity: 0.8 }}>12 POINTS</span>
-                                    {liveData[revealIndex]?.top10[0].country.toUpperCase()}
+                                    {liveData[revealIndex]?.juryTop10[0].country.toUpperCase()}
                                 </div>
                             )}
                         </div>
@@ -106,10 +122,10 @@ export default function Admin() {
                         <div>
                             <h1 style={{ textAlign: 'center', color: MAGENTA, letterSpacing: '4px' }}>LEADERBOARD</h1>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '30px' }}>
-                                {leaderboard.map(([country, score], idx) => (
+                                {leaderboard.map(([country, scores], idx) => (
                                     <div key={country} style={adminStyles.leaderboardRow}>
                                         <span>{idx + 1}. {country}</span>
-                                        <span style={{ color: CYAN }}>{score} PTS</span>
+                                        <span style={{ color: CYAN }}>{scores.jury + scores.tele} PTS</span>
                                     </div>
                                 ))}
                             </div>
