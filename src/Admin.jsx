@@ -10,8 +10,10 @@ export default function Admin() {
     const [revealIndex, setRevealIndex] = useState(0);
     const [showTen, setShowTen] = useState(false);
     const [showTwelve, setShowTwelve] = useState(false);
+    const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [view, setView] = useState('reveal'); // 'reveal' or 'leaderboard'
     const [revealedCountries, setRevealedCountries] = useState(new Set()); // Track which countries have had televote revealed
+    const [cumulativeJury, setCumulativeJury] = useState({}); // Track cumulative jury points per country
 
     const fetchJuryResults = async () => {
         try {
@@ -59,6 +61,20 @@ export default function Admin() {
             alert(`Data fetch failed: ${e.message}`); 
         }
     };
+
+    // Calculate cumulative jury totals
+    const jurorLeaderboard = useMemo(() => {
+        const totals = {};
+        liveData.forEach((juror, idx) => {
+            if (idx >= revealIndex) return; // Only count juries up to current
+            juror.juryTop10.forEach((score) => {
+                totals[score.country] = (totals[score.country] || 0) + score.pts;
+            });
+        });
+        return Object.entries(totals)
+            .map(([country, jury]) => [country, { jury, tele: 0 }])
+            .sort((a, b) => b[1].jury - a[1].jury);
+    }, [liveData, revealIndex]);
 
     // Calculate Grand Totals across ALL jurors - only include revealed televote
     const leaderboard = useMemo(() => {
@@ -116,31 +132,63 @@ export default function Admin() {
                 <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
                     
                     {view === 'reveal' ? (
-                        <div style={{ textAlign: 'center' }}>
-                            <div style={{ width: '200px', height: '120px', margin: '0 auto 30px', position: 'relative', borderRadius: '10px', overflow: 'hidden' }}>
-                                <img src={`/flags/${liveData[revealIndex]?.juryTop10[0]?.country}.png`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={liveData[revealIndex]?.juryTop10[0]?.country} />
-                            </div>
-                            <h1 style={{ fontSize: '72px', color: CYAN, margin: 0 }}>{liveData[revealIndex]?.name}</h1>
-                            <p style={{ letterSpacing: '8px', color: '#64748b', marginBottom: '40px' }}>{liveData[revealIndex]?.location.toUpperCase()}</p>
-                            
-                            <div style={adminStyles.pointGrid}>
-                                {liveData[revealIndex]?.juryTop10.slice(2).reverse().map((s, i) => (
-                                    <div key={s.country} style={adminStyles.pointRow}>
-                                        <span style={{ color: CYAN, marginRight: '15px' }}>{s.pts}</span> {s.country.toUpperCase()}
+                        <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
+                            {!showLeaderboard ? (
+                                <div style={{ textAlign: 'center' }}>
+                                    <h1 style={{ fontSize: '72px', color: CYAN, margin: 0 }}>{liveData[revealIndex]?.name}</h1>
+                                    <p style={{ letterSpacing: '8px', color: '#64748b', marginBottom: '40px' }}>{liveData[revealIndex]?.location.toUpperCase()}</p>
+                                    
+                                    <div style={adminStyles.pointGrid}>
+                                        {liveData[revealIndex]?.juryTop10.slice(2).reverse().map((s, i) => (
+                                            <div key={s.country} style={adminStyles.pointRow}>
+                                                <img src={`/flags/${s.country}.png`} style={{ width: '30px', height: '20px', marginRight: '15px', objectFit: 'cover' }} alt={s.country} />
+                                                <span style={{ color: CYAN, marginRight: '15px' }}>{s.pts}</span> {s.country.toUpperCase()}
+                                            </div>
+                                        ))}
                                     </div>
-                                ))}
-                            </div>
 
-                            {showTen && (
-                                <div className="reveal" style={adminStyles.tenBox}>
-                                    <span style={{ fontSize: '14px', display: 'block', opacity: 0.8 }}>10 POINTS</span>
-                                    {liveData[revealIndex]?.juryTop10[1].country.toUpperCase()}
+                                    {showTen && (
+                                        <div className="reveal" style={adminStyles.tenBox}>
+                                            <span style={{ fontSize: '14px', display: 'block', opacity: 0.8 }}>10 POINTS</span>
+                                            {liveData[revealIndex]?.juryTop10[1].country.toUpperCase()}
+                                        </div>
+                                    )}
+                                    {showTwelve && (
+                                        <div className="reveal" style={adminStyles.twelveBox}>
+                                            <span style={{ fontSize: '18px', display: 'block', opacity: 0.8 }}>12 POINTS</span>
+                                            {liveData[revealIndex]?.juryTop10[0].country.toUpperCase()}
+                                        </div>
+                                    )}
                                 </div>
-                            )}
-                            {showTwelve && (
-                                <div className="reveal" style={adminStyles.twelveBox}>
-                                    <span style={{ fontSize: '18px', display: 'block', opacity: 0.8 }}>12 POINTS</span>
-                                    {liveData[revealIndex]?.juryTop10[0].country.toUpperCase()}
+                            ) : (
+                                <div>
+                                    <h1 style={{ textAlign: 'center', color: MAGENTA, letterSpacing: '4px', marginBottom: '30px' }}>JURY LEADERBOARD</h1>
+                                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+                                        <div>
+                                            {jurorLeaderboard.slice(0, 13).map(([country, scores], idx) => (
+                                                <div key={country} style={adminStyles.leaderboardRow}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                        <span style={{ fontWeight: 900, minWidth: '30px' }}>{idx + 1}.</span>
+                                                        <img src={`/flags/${country}.png`} style={{ width: '25px', height: '17px', objectFit: 'cover' }} alt={country} />
+                                                        <span>{country}</span>
+                                                    </div>
+                                                    <span style={{ color: CYAN }}>{scores.jury} PTS</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                        <div>
+                                            {jurorLeaderboard.slice(13).map(([country, scores], idx) => (
+                                                <div key={country} style={adminStyles.leaderboardRow}>
+                                                    <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                        <span style={{ fontWeight: 900, minWidth: '30px' }}>{idx + 14}.</span>
+                                                        <img src={`/flags/${country}.png`} style={{ width: '25px', height: '17px', objectFit: 'cover' }} alt={country} />
+                                                        <span>{country}</span>
+                                                    </div>
+                                                    <span style={{ color: CYAN }}>{scores.jury} PTS</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
                                 </div>
                             )}
                         </div>
@@ -170,16 +218,20 @@ export default function Admin() {
 
             {/* Hidden Control Panel (Doesn't show on TV if you keep mouse off it) */}
             <div className="admin-dock" style={adminStyles.dock}>
-                <button onClick={() => { setView('reveal'); setRevealedCountries(new Set()); }}>Reveal View</button>
-                <button onClick={() => setView('leaderboard')}>Leaderboard View</button>
+                <button onClick={() => { setView('reveal'); setRevealedCountries(new Set()); setShowLeaderboard(false); }}>Reveal View</button>
+                <button onClick={() => setView('leaderboard')}>Full Leaderboard</button>
                 <div style={{ width: '2px', background: '#334155', margin: '0 10px' }} />
                 <button onClick={() => setShowTen(true)}>Show 10</button>
                 <button onClick={() => setShowTwelve(true)}>Show 12</button>
+                <button onClick={() => setShowLeaderboard(!showLeaderboard)} style={{ background: showLeaderboard ? MAGENTA : 'inherit' }}>
+                    {showLeaderboard ? 'Back to Juror' : 'Show Leaderboard'}
+                </button>
                 <button onClick={() => { 
                     if(revealIndex < liveData.length - 1) {
                         setRevealIndex(prev => prev + 1); 
                         setShowTen(false); 
-                        setShowTwelve(false); 
+                        setShowTwelve(false);
+                        setShowLeaderboard(false);
                     }
                 }}>Next Juror</button>
                 <button onClick={fetchJuryResults} style={{ background: CYAN, color: 'black' }}>Refresh</button>
@@ -191,7 +243,7 @@ export default function Admin() {
 const adminStyles = {
     mainBtn: { padding: '20px 40px', background: CYAN, border: 'none', fontWeight: 900, cursor: 'pointer', borderRadius: '10px', marginTop: '20px' },
     pointGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '30px' },
-    pointRow: { background: '#111827', padding: '18px', textAlign: 'left', fontWeight: 800, borderLeft: `5px solid ${CYAN}`, fontSize: '18px' },
+    pointRow: { background: '#111827', padding: '18px', textAlign: 'left', fontWeight: 800, borderLeft: `5px solid ${CYAN}`, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '10px' },
     tenBox: { background: '#1e293b', padding: '25px', borderRadius: '15px', border: `2px solid ${CYAN}`, fontSize: '32px', fontWeight: 900, marginBottom: '20px' },
     twelveBox: { background: `linear-gradient(45deg, #2d004d, #000)`, padding: '40px', borderRadius: '15px', border: `4px solid ${MAGENTA}`, fontSize: '56px', fontWeight: 900, textShadow: '0 0 20px rgba(224, 0, 255, 0.5)' },
     leaderboardRow: { background: '#0b101e', padding: '15px 25px', display: 'flex', justifyContent: 'space-between', fontWeight: 700, borderRadius: '8px', border: '1px solid #ffffff10' },
