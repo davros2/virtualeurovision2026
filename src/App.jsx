@@ -123,7 +123,7 @@ const VotingCard = ({ country, friendName, jurorCountry, sessionId, onSave }) =>
       border: '1px solid rgba(255,255,255,0.05)' 
     }}>
       <div style={{ width: '100%', height: '240px', position: 'relative', backgroundColor: '#000', borderRadius: '32px 32px 0 0', overflow: 'hidden' }}>
-        <img src={`/flags/${country.name}.png`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={country.name} />
+        <img src={`/flags/${country.name}.svg`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={country.name} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '120px', background: 'linear-gradient(to top, #0b101e, transparent)' }}></div>
       </div>
 
