@@ -13,7 +13,7 @@ export default function Admin() {
     const [showLeaderboard, setShowLeaderboard] = useState(false);
     const [view, setView] = useState('reveal'); // 'reveal' or 'leaderboard'
     const [revealedCountries, setRevealedCountries] = useState(new Set()); // Track which countries have had televote revealed
-    const [cumulativeJury, setCumulativeJury] = useState({}); // Track cumulative jury points per country
+    const [revealingTelevote, setRevealingTelevote] = useState(null); // Country currently revealing televote (flag + number animation)
 
     const fetchJuryResults = async () => {
         try {
@@ -107,7 +107,17 @@ export default function Admin() {
         for (let i = leaderboard.length - 1; i >= 0; i--) {
             const [country] = leaderboard[i];
             if (!revealedCountries.has(country)) {
-                setRevealedCountries(new Set([...revealedCountries, country]));
+                // Start animation sequence
+                setRevealingTelevote(country);
+                
+                // After 1 second, show the number and after 2.5 seconds, fade away
+                setTimeout(() => {
+                    setRevealedCountries(new Set([...revealedCountries, country]));
+                }, 2500);
+                
+                setTimeout(() => {
+                    setRevealingTelevote(null);
+                }, 3500);
                 break;
             }
         }
@@ -148,16 +158,28 @@ export default function Admin() {
                                     </div>
 
                                     {showTen && (
-                                        <div className="reveal" style={adminStyles.tenBox}>
-                                            <span style={{ fontSize: '14px', display: 'block', opacity: 0.8 }}>10 POINTS</span>
-                                            {liveData[revealIndex]?.juryTop10[1].country.toUpperCase()}
+                                        <div className="reveal" style={{...adminStyles.tenBox, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                            <img src={`/flags/${liveData[revealIndex]?.juryTop10[1].country}.png`} style={{ width: '40px', height: '27px', objectFit: 'cover', marginRight: '15px' }} alt={liveData[revealIndex]?.juryTop10[1].country} />
+                                            <div>
+                                                <span style={{ fontSize: '14px', display: 'block', opacity: 0.8 }}>10 POINTS</span>
+                                                {liveData[revealIndex]?.juryTop10[1].country.toUpperCase()}
+                                            </div>
                                         </div>
                                     )}
                                     {showTwelve && (
-                                        <div className="reveal" style={adminStyles.twelveBox}>
-                                            <span style={{ fontSize: '18px', display: 'block', opacity: 0.8 }}>12 POINTS</span>
-                                            {liveData[revealIndex]?.juryTop10[0].country.toUpperCase()}
+                                        <div className="reveal" style={{...adminStyles.twelveBox, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
+                                            <img src={`/flags/${liveData[revealIndex]?.juryTop10[0].country}.png`} style={{ width: '50px', height: '33px', objectFit: 'cover', marginRight: '20px' }} alt={liveData[revealIndex]?.juryTop10[0].country} />
+                                            <div>
+                                                <span style={{ fontSize: '18px', display: 'block', opacity: 0.8 }}>12 POINTS</span>
+                                                {liveData[revealIndex]?.juryTop10[0].country.toUpperCase()}
+                                            </div>
                                         </div>
+                                    )}
+                                    
+                                    {(showTen || showTwelve) && (
+                                        <button onClick={() => setShowLeaderboard(true)} style={{ ...adminStyles.mainBtn, background: MAGENTA, marginTop: '30px', padding: '15px 40px', fontSize: '16px' }}>
+                                            ADD TO LEADERBOARD
+                                        </button>
                                     )}
                                 </div>
                             ) : (
@@ -196,20 +218,60 @@ export default function Admin() {
                         <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
                                 <h1 style={{ textAlign: 'center', flex: 1, color: MAGENTA, letterSpacing: '4px', margin: 0 }}>LEADERBOARD</h1>
-                                <button onClick={revealNextTelevote} style={{ ...adminStyles.mainBtn, background: MAGENTA, padding: '15px 30px', fontSize: '14px' }}>
+                                <button onClick={revealNextTelevote} style={{ ...adminStyles.mainBtn, background: MAGENTA, padding: '15px 30px', fontSize: '14px' }} disabled={revealingTelevote !== null}>
                                     REVEAL TELEVOTE
                                 </button>
                             </div>
-                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '30px' }}>
-                                {leaderboard.map(([country, scores], idx) => (
-                                    <div key={country} style={{ ...adminStyles.leaderboardRow, transition: 'all 0.5s ease', opacity: scores.revealed ? 1 : 0.7 }}>
-                                        <span>{idx + 1}. {country}</span>
-                                        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                                            {scores.revealed && <span style={{ color: MAGENTA, fontSize: '12px' }}>+{scores.tele} TELE</span>}
-                                            <span style={{ color: CYAN }}>{scores.total} PTS</span>
+                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px', marginTop: '30px' }}>
+                                <div>
+                                    {leaderboard.slice(0, 13).map(([country, scores], idx) => (
+                                        <div key={country} style={{ ...adminStyles.leaderboardRow, transition: 'all 0.5s ease', opacity: scores.revealed ? 1 : 0.7 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <span style={{ fontWeight: 900, minWidth: '30px' }}>{idx + 1}.</span>
+                                                <img src={`/flags/${country}.png`} style={{ width: '25px', height: '17px', objectFit: 'cover' }} alt={country} />
+                                                <span>{country}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                                                <span style={{ color: MAGENTA, fontSize: '12px' }}>+{scores.tele} TELE</span>
+                                                <span style={{ color: CYAN }}>{scores.total} PTS</span>
+                                            </div>
                                         </div>
+                                    ))}
+                                </div>
+                                <div>
+                                    {leaderboard.slice(13).map(([country, scores], idx) => (
+                                        <div key={country} style={{ ...adminStyles.leaderboardRow, transition: 'all 0.5s ease', opacity: scores.revealed ? 1 : 0.7 }}>
+                                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                                <span style={{ fontWeight: 900, minWidth: '30px' }}>{idx + 14}.</span>
+                                                <img src={`/flags/${country}.png`} style={{ width: '25px', height: '17px', objectFit: 'cover' }} alt={country} />
+                                                <span>{country}</span>
+                                            </div>
+                                            <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                                                <span style={{ color: MAGENTA, fontSize: '12px' }}>+{scores.tele} TELE</span>
+                                                <span style={{ color: CYAN }}>{scores.total} PTS</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        </div>
+                    )}
+                    
+                    {/* Televote Reveal Animation */}
+                    {revealingTelevote && (
+                        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px' }}>
+                                <div style={{ animation: 'slideUp 0.5s ease', fontSize: '120px' }}>
+                                    <img src={`/flags/${revealingTelevote}.png`} style={{ width: '300px', height: '200px', objectFit: 'cover', borderRadius: '10px' }} alt={revealingTelevote} />
+                                </div>
+                                <div style={{ animation: 'slideUp 1s ease 1s both', textAlign: 'center' }}>
+                                    <div style={{ fontSize: '48px', fontWeight: 900, color: MAGENTA, textShadow: `0 0 20px ${MAGENTA}80`, marginBottom: '10px' }}>
+                                        +{leaderboard.find(([c]) => c === revealingTelevote)?.[1]?.tele || 0} TELEVOTE POINTS
                                     </div>
-                                ))}
+                                    <div style={{ fontSize: '72px', fontWeight: 900, color: CYAN }}>
+                                        = {leaderboard.find(([c]) => c === revealingTelevote)?.[1]?.total || 0} TOTAL
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     )}
@@ -244,8 +306,8 @@ const adminStyles = {
     mainBtn: { padding: '20px 40px', background: CYAN, border: 'none', fontWeight: 900, cursor: 'pointer', borderRadius: '10px', marginTop: '20px' },
     pointGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '30px' },
     pointRow: { background: '#111827', padding: '18px', textAlign: 'left', fontWeight: 800, borderLeft: `5px solid ${CYAN}`, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '10px' },
-    tenBox: { background: '#1e293b', padding: '25px', borderRadius: '15px', border: `2px solid ${CYAN}`, fontSize: '32px', fontWeight: 900, marginBottom: '20px' },
-    twelveBox: { background: `linear-gradient(45deg, #2d004d, #000)`, padding: '40px', borderRadius: '15px', border: `4px solid ${MAGENTA}`, fontSize: '56px', fontWeight: 900, textShadow: '0 0 20px rgba(224, 0, 255, 0.5)' },
+    tenBox: { background: '#1e293b', padding: '25px', borderRadius: '15px', border: `2px solid ${CYAN}`, fontSize: '18px', fontWeight: 900, marginBottom: '20px' },
+    twelveBox: { background: `linear-gradient(45deg, #2d004d, #000)`, padding: '40px', borderRadius: '15px', border: `4px solid ${MAGENTA}`, fontSize: '24px', fontWeight: 900, textShadow: '0 0 20px rgba(224, 0, 255, 0.5)' },
     leaderboardRow: { background: '#0b101e', padding: '15px 25px', display: 'flex', justifyContent: 'space-between', fontWeight: 700, borderRadius: '8px', border: '1px solid #ffffff10' },
     dock: { position: 'fixed', bottom: 0, left: 0, right: 0, padding: '15px', background: 'rgba(0,0,0,0.9)', display: 'flex', gap: '10px', justifyContent: 'center', opacity: 0.1, transition: 'opacity 0.3s' },
 };
