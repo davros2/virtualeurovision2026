@@ -44,13 +44,14 @@ const Leaderboard = ({ title, history, type, accentColor }) => {
       flex: '0 0 auto', // Prevent height capping in vertical mode
       width: '100%', 
       maxWidth: '420px',
-      backgroundColor: '#0b101e', 
-      borderRadius: '24px', 
+      background: 'linear-gradient(135deg, rgba(11, 16, 30, 0.8) 0%, rgba(15, 23, 42, 0.5) 100%)',
+      borderRadius: '20px', 
       padding: '24px', 
-      border: `1px solid ${accentColor}40`, 
-      boxShadow: `0 10px 30px rgba(0,0,0,0.5)` 
+      border: `1.5px solid ${accentColor}40`,
+      boxShadow: `0 12px 40px rgba(0,0,0,0.4), 0 0 30px ${accentColor}20`,
+      backdropFilter: 'blur(20px)' 
     }}>
-      <h3 style={{ fontSize: '14px', fontWeight: 900, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.15em', borderBottom: `1px solid ${accentColor}40`, paddingBottom: '12px', marginBottom: '20px', textAlign: 'center' }}>
+      <h3 style={{ fontSize: '13px', fontWeight: 900, color: accentColor, textTransform: 'uppercase', letterSpacing: '0.2em', borderBottom: `1px solid ${accentColor}40`, paddingBottom: '12px', marginBottom: '20px', textAlign: 'center', textShadow: `0 0 10px ${accentColor}20` }}>
         {title}
       </h3>
       
@@ -58,13 +59,13 @@ const Leaderboard = ({ title, history, type, accentColor }) => {
         {sortedHistory.length === 0 ? (
           <p style={{ color: '#475569', fontSize: '12px', textAlign: 'center', fontStyle: 'italic' }}>No data transmitted...</p>
         ) : sortedHistory.map((entry, idx) => (
-          <div key={entry.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px 12px', backgroundColor: 'rgba(255,255,255,0.02)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          <div key={entry.name} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '12px 14px', background: `linear-gradient(135deg, rgba(0, 229, 255, 0.05) 0%, rgba(15, 23, 42, 0.3) 100%)`, borderRadius: '10px', border: `1px solid ${accentColor}20`, transition: 'all 0.3s ease' }}>
             <div style={{ textAlign: 'left' }}>
               <div style={{ fontSize: '13px', fontWeight: 800, color: 'white', textTransform: 'uppercase' }}>{entry.name}</div>
               <div style={{ fontSize: '10px', color: '#64748b', fontWeight: 600 }}>{entry[type].s1} | {entry[type].s2}</div>
             </div>
-            <div style={{ fontSize: '18px', fontWeight: 900, color: accentColor }}>
-              {eurovisionPoints[idx]} <span style={{ fontSize: '9px', opacity: 0.6 }}>PTS</span>
+            <div style={{ fontSize: '16px', fontWeight: 900, color: accentColor, textShadow: `0 0 10px ${accentColor}40` }}>
+              {eurovisionPoints[idx]} <span style={{ fontSize: '8px', opacity: 0.6 }}>PTS</span>
             </div>
           </div>
         ))}
@@ -113,16 +114,17 @@ const VotingCard = ({ country, friendName, jurorCountry, sessionId, onSave }) =>
 
   return (
     <div className="main-card" style={{ 
-      flex: '0 0 auto', // Crucial fix for image_e63889.png
+      flex: '0 0 auto',
       maxWidth: '420px', 
       width: '100%', 
-      backgroundColor: '#0b101e', 
+      background: 'linear-gradient(135deg, rgba(11, 16, 30, 0.9) 0%, rgba(15, 23, 42, 0.6) 100%)',
       color: 'white', 
-      borderRadius: '32px', 
-      boxShadow: '0 30px 60px rgba(0,0,0,0.8)', 
-      border: '1px solid rgba(255,255,255,0.05)' 
+      borderRadius: '24px', 
+      boxShadow: '0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(0,229,255,0.1)', 
+      border: `1.5px solid rgba(0, 229, 255, 0.2)`,
+      backdropFilter: 'blur(20px)'
     }}>
-      <div style={{ width: '100%', height: '240px', position: 'relative', backgroundColor: '#000', borderRadius: '32px 32px 0 0', overflow: 'hidden' }}>
+      <div style={{ width: '100%', height: '240px', position: 'relative', backgroundColor: '#000', borderRadius: '24px 24px 0 0', overflow: 'hidden' }}>
         <img src={`/flags/${country.name}.svg`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={country.name} />
         <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: '120px', background: 'linear-gradient(to top, #0b101e, transparent)' }}></div>
       </div>
@@ -146,20 +148,20 @@ const VotingCard = ({ country, friendName, jurorCountry, sessionId, onSave }) =>
           </div>
         </div>
 
-        <div style={{ background: 'linear-gradient(135deg, #1e293b, #0f172a)', padding: '20px', borderRadius: '20px', marginBottom: '24px', textAlign: 'center', border: '1px solid rgba(255,255,255,0.08)' }}>
+        <div style={{ background: 'linear-gradient(135deg, rgba(0, 229, 255, 0.1) 0%, rgba(15, 23, 42, 0.5) 100%)', padding: '20px', borderRadius: '16px', marginBottom: '24px', textAlign: 'center', border: `1px solid rgba(0, 229, 255, 0.2)`, boxShadow: `0 4px 20px rgba(0,229,255,0.1)` }}>
           <p style={{ fontSize: '10px', fontWeight: 800, color: '#64748b', letterSpacing: '0.2em', margin: '0 0 4px 0' }}>TOTAL SCORE</p>
-          <p style={{ fontSize: '56px', fontWeight: 900, color: 'white', lineHeight: 1, margin: 0 }}>{overallTotal}</p>
+          <p style={{ fontSize: '56px', fontWeight: 900, color: cyan, lineHeight: 1, margin: 0, textShadow: `0 0 20px ${cyan}40` }}>{overallTotal}</p>
         </div>
 
         <textarea 
           rows="2"
-          style={{ width: '100%', padding: '14px', backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: '12px', color: 'white', border: '1px solid #1e293b', fontSize: '13px', marginBottom: '20px', outline: 'none', resize: 'none', fontFamily: 'inherit' }}
+          style={{ width: '100%', padding: '14px', background: 'rgba(15, 23, 42, 0.6)', borderRadius: '12px', color: 'white', border: '1px solid rgba(0, 229, 255, 0.2)', fontSize: '13px', marginBottom: '20px', outline: 'none', resize: 'none', fontFamily: 'inherit', backdropFilter: 'blur(10px)' }}
           placeholder="Observation notes..."
           value={note}
           onChange={(e) => setNote(e.target.value)}
         />
 
-        <button onClick={handleSubmit} style={{ width: '100%', background: `linear-gradient(90deg, ${cyan}, ${magenta})`, color: 'white', fontWeight: 900, padding: '20px', borderRadius: '16px', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.15em' }}>
+        <button onClick={handleSubmit} style={{ width: '100%', background: `linear-gradient(135deg, ${cyan} 0%, ${magenta} 100%)`, color: 'white', fontWeight: 900, padding: '16px', borderRadius: '12px', border: 'none', cursor: 'pointer', textTransform: 'uppercase', letterSpacing: '0.1em', fontSize: '13px', boxShadow: `0 8px 25px rgba(0,229,255,0.3)`, transition: 'all 0.3s ease' }}>
           Submit Entry
         </button>
       </div>
@@ -226,12 +228,13 @@ export default function App() {
 
   if (!isStarted) {
     return (
-      <div style={{ minHeight: '100vh', backgroundColor: '#050810', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'sans-serif' }}>
-        <h1 style={{ fontSize: '42px', fontWeight: 900, marginBottom: '40px', color: '#fff', fontStyle: 'italic' }}>EV_2026</h1>
-        <div style={{ width: '100%', maxWidth: '300px', display: 'flex', flexDirection: 'column', gap: '12px' }}>
-          <input style={{ padding: '16px', borderRadius: '12px', backgroundColor: '#111827', border: '1px solid #1e293b', color: 'white' }} placeholder="Juror Name" value={friendName} onChange={(e) => setFriendName(e.target.value)} />
-          <input style={{ padding: '16px', borderRadius: '12px', backgroundColor: '#111827', border: '1px solid #1e293b', color: 'white' }} placeholder="Station Location" value={jurorCountry} onChange={(e) => setJurorCountry(e.target.value)} />
-          <button onClick={() => (friendName && jurorCountry) && setIsStarted(true)} style={{ background: '#fff', color: '#000', padding: '16px', borderRadius: '12px', fontWeight: 900, border: 'none', cursor: 'pointer' }}>INITIALIZE</button>
+      <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #050810 0%, #0f1725 100%)', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', padding: '20px', fontFamily: 'sans-serif' }}>
+        <h1 style={{ fontSize: '56px', fontWeight: 900, marginBottom: '10px', background: 'linear-gradient(135deg, #00e5ff 0%, #e000ff 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', textShadow: '0 0 40px rgba(0,229,255,0.3)', letterSpacing: '2px' }}>Eurovision Song Contest 2026</h1>
+        <p style={{ fontSize: '28px', color: '#00e5ff', marginBottom: '50px', fontWeight: 300, letterSpacing: '4px' }}>Vienna</p>
+        <div style={{ width: '100%', maxWidth: '340px', display: 'flex', flexDirection: 'column', gap: '14px' }}>
+          <input style={{ padding: '16px 20px', borderRadius: '14px', backgroundColor: 'rgba(17, 24, 39, 0.6)', border: '1px solid rgba(0, 229, 255, 0.3)', color: 'white', fontSize: '14px', fontWeight: 600, transition: 'all 0.3s ease', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', backdropFilter: 'blur(10px)' }} placeholder="Juror Name" value={friendName} onChange={(e) => setFriendName(e.target.value)} />
+          <input style={{ padding: '16px 20px', borderRadius: '14px', backgroundColor: 'rgba(17, 24, 39, 0.6)', border: '1px solid rgba(0, 229, 255, 0.3)', color: 'white', fontSize: '14px', fontWeight: 600, transition: 'all 0.3s ease', boxShadow: '0 4px 20px rgba(0,0,0,0.3)', backdropFilter: 'blur(10px)' }} placeholder="Your Jury Country" value={jurorCountry} onChange={(e) => setJurorCountry(e.target.value)} />
+          <button onClick={() => (friendName && jurorCountry) && setIsStarted(true)} style={{ background: 'linear-gradient(135deg, #00e5ff 0%, #00b8e6 100%)', color: '#000', padding: '16px', borderRadius: '14px', fontWeight: 900, border: 'none', cursor: 'pointer', fontSize: '14px', letterSpacing: '1px', textTransform: 'uppercase', boxShadow: '0 8px 30px rgba(0,229,255,0.3)', transition: 'all 0.3s ease' }}>Initialize</button>
         </div>
       </div>
     );
@@ -239,14 +242,15 @@ export default function App() {
 
   if (currentIndex >= countries.length) {
     return (
-        <div style={{ minHeight: '100vh', backgroundColor: '#050810', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white' }}>
-            <h1>Transmission Complete</h1>
+        <div style={{ minHeight: '100vh', background: 'linear-gradient(135deg, #050810 0%, #0f1725 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', color: 'white', flexDirection: 'column', gap: '20px' }}>
+            <h1 style={{ fontSize: '52px', fontWeight: 900, background: 'linear-gradient(135deg, #00e5ff 0%, #e000ff 100%)', backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>Transmission Complete</h1>
+            <p style={{ fontSize: '18px', color: '#94a3b8', letterSpacing: '2px' }}>Thank you for voting!</p>
         </div>
     );
   }
 
   return (
-    <div style={{ backgroundColor: '#050810', minHeight: '100vh', padding: '20px 10px', color: 'white', fontFamily: '"Inter", sans-serif' }}>
+    <div style={{ background: 'linear-gradient(135deg, #050810 0%, #0f1725 100%)', minHeight: '100vh', padding: '20px 10px', color: 'white', fontFamily: '"Inter", sans-serif' }}>
       <style>{`
         * { box-sizing: border-box; }
         body, html { overflow-x: hidden; width: 100%; margin: 0; padding: 0; }
@@ -265,9 +269,12 @@ export default function App() {
         }
       `}</style>
 
-      <header style={{ textAlign: 'center', marginBottom: '30px' }}>
-        <div style={{ fontSize: '11px', color: '#94a3b8', letterSpacing: '0.2em' }}>{jurorCountry.toUpperCase()} // {friendName.toUpperCase()}</div>
-        <div style={{ fontSize: '13px', fontWeight: 800, marginTop: '5px', color: '#00e5ff' }}>ACT {currentIndex + 1} OF {countries.length}</div>
+      <header style={{ textAlign: 'center', marginBottom: '30px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', maxWidth: '1400px', margin: '0 auto 30px', paddingX: '20px' }}>
+        <div>
+          <div style={{ fontSize: '11px', color: '#94a3b8', letterSpacing: '0.2em' }}>{jurorCountry.toUpperCase()} // {friendName.toUpperCase()}</div>
+          <div style={{ fontSize: '13px', fontWeight: 800, marginTop: '5px', color: '#00e5ff' }}>ACT {currentIndex + 1} OF {countries.length}</div>
+        </div>
+        <button onClick={() => { if(window.confirm('Are you sure? This will clear your voting history.')) { localStorage.removeItem('eurovision_history_2026'); setVotingHistory([]); setCurrentIndex(0); setIsStarted(false); } }} style={{ background: 'linear-gradient(135deg, rgba(224, 0, 255, 0.2) 0%, rgba(200, 0, 255, 0.1) 100%)', border: '1px solid rgba(224, 0, 255, 0.5)', color: '#e000ff', padding: '10px 18px', borderRadius: '10px', fontWeight: 700, fontSize: '11px', letterSpacing: '0.1em', textTransform: 'uppercase', cursor: 'pointer', transition: 'all 0.3s ease', boxShadow: '0 4px 15px rgba(224, 0, 255, 0.2)', backdropFilter: 'blur(10px)' }}>Reset</button>
       </header>
 
       <div className="dashboard">

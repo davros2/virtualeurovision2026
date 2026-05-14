@@ -195,7 +195,7 @@ export default function Admin() {
                                     <div style={adminStyles.pointGrid}>
                                         {liveData[revealIndex]?.juryTop10.slice(2).reverse().map((s, i) => (
                                             <div key={s.country} style={adminStyles.pointRow}>
-                                                <img src={`/flags/${s.country}.svg`} style={{ width: '30px', height: '20px', marginRight: '15px', objectFit: 'cover' }} alt={s.country} />
+                                                <img src={`/flags/${s.country}.svg`} style={{ width: '45px', height: '30px', marginRight: '15px', objectFit: 'cover' }} alt={s.country} />
                                                 <span style={{ color: CYAN, marginRight: '15px' }}>{s.pts}</span> {s.country.toUpperCase()}
                                             </div>
                                         ))}
@@ -203,7 +203,7 @@ export default function Admin() {
 
                                     {showTen && (
                                         <div className="reveal" style={{...adminStyles.tenBox, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                                            <img src={`/flags/${liveData[revealIndex]?.juryTop10[1].country}.svg`} style={{ width: '40px', height: '27px', objectFit: 'cover', marginRight: '15px' }} alt={liveData[revealIndex]?.juryTop10[1].country} />
+                                            <img src={`/flags/${liveData[revealIndex]?.juryTop10[1].country}.svg`} style={{ width: '55px', height: '37px', objectFit: 'cover', marginRight: '15px' }} alt={liveData[revealIndex]?.juryTop10[1].country} />
                                             <div>
                                                 <span style={{ fontSize: '14px', display: 'block', opacity: 0.8 }}>10 POINTS</span>
                                                 {liveData[revealIndex]?.juryTop10[1].country.toUpperCase()}
@@ -212,7 +212,7 @@ export default function Admin() {
                                     )}
                                     {showTwelve && (
                                         <div className="reveal" style={{...adminStyles.twelveBox, display: 'flex', alignItems: 'center', justifyContent: 'center'}}>
-                                            <img src={`/flags/${liveData[revealIndex]?.juryTop10[0].country}.svg`} style={{ width: '50px', height: '33px', objectFit: 'cover', marginRight: '20px' }} alt={liveData[revealIndex]?.juryTop10[0].country} />
+                                            <img src={`/flags/${liveData[revealIndex]?.juryTop10[0].country}.svg`} style={{ width: '65px', height: '43px', objectFit: 'cover', marginRight: '20px' }} alt={liveData[revealIndex]?.juryTop10[0].country} />
                                             <div>
                                                 <span style={{ fontSize: '18px', display: 'block', opacity: 0.8 }}>12 POINTS</span>
                                                 {liveData[revealIndex]?.juryTop10[0].country.toUpperCase()}
@@ -235,7 +235,7 @@ export default function Admin() {
                                                 <div key={country} style={adminStyles.leaderboardRow}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                         <span style={{ fontWeight: 900, minWidth: '30px' }}>{idx + 1}.</span>
-                                                        <img src={`/flags/${country}.svg`} style={{ width: '25px', height: '17px', objectFit: 'cover' }} alt={country} />
+                                                        <img src={`/flags/${country}.svg`} style={{ width: '35px', height: '24px', objectFit: 'cover' }} alt={country} />
                                                         <span>{country}</span>
                                                     </div>
                                                     <span style={{ color: CYAN }}>{scores.jury} PTS</span>
@@ -247,7 +247,7 @@ export default function Admin() {
                                                 <div key={country} style={adminStyles.leaderboardRow}>
                                                     <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                         <span style={{ fontWeight: 900, minWidth: '30px' }}>{idx + 14}.</span>
-                                                        <img src={`/flags/${country}.svg`} style={{ width: '25px', height: '17px', objectFit: 'cover' }} alt={country} />
+                                                        <img src={`/flags/${country}.svg`} style={{ width: '35px', height: '24px', objectFit: 'cover' }} alt={country} />
                                                         <span>{country}</span>
                                                     </div>
                                                     <span style={{ color: CYAN }}>{scores.jury} PTS</span>
@@ -272,7 +272,7 @@ export default function Admin() {
                                         <div key={country} style={{ ...adminStyles.leaderboardRow, transition: 'all 0.5s ease', opacity: scores.revealed ? 1 : 0.7 }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                 <span style={{ fontWeight: 900, minWidth: '30px' }}>{idx + 1}.</span>
-                                                <img src={`/flags/${country}.svg`} style={{ width: '25px', height: '17px', objectFit: 'cover' }} alt={country} />
+                                                <img src={`/flags/${country}.svg`} style={{ width: '35px', height: '24px', objectFit: 'cover' }} alt={country} />
                                                 <span>{country}</span>
                                             </div>
                                             <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
@@ -287,7 +287,7 @@ export default function Admin() {
                                         <div key={country} style={{ ...adminStyles.leaderboardRow, transition: 'all 0.5s ease', opacity: scores.revealed ? 1 : 0.7 }}>
                                             <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                                                 <span style={{ fontWeight: 900, minWidth: '30px' }}>{idx + 14}.</span>
-                                                <img src={`/flags/${country}.svg`} style={{ width: '25px', height: '17px', objectFit: 'cover' }} alt={country} />
+                                                <img src={`/flags/${country}.svg`} style={{ width: '35px', height: '24px', objectFit: 'cover' }} alt={country} />
                                                 <span>{country}</span>
                                             </div>
                                             <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
@@ -306,7 +306,7 @@ export default function Admin() {
                         <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.95) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(20px)' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px' }}>
                                 <div style={{ animation: 'slideUp 0.5s ease', fontSize: '120px' }}>
-                                    <img src={`/flags/${revealingTelevote}.svg`} style={{ width: '320px', height: '220px', objectFit: 'cover', borderRadius: '16px', boxShadow: `0 20px 60px rgba(0,0,0,0.8), 0 0 60px ${MAGENTA}30` }} alt={revealingTelevote} />
+                                    <img src={`/flags/${revealingTelevote}.svg`} style={{ width: '380px', height: '260px', objectFit: 'cover', borderRadius: '16px', boxShadow: `0 20px 60px rgba(0,0,0,0.8), 0 0 60px ${MAGENTA}30` }} alt={revealingTelevote} />
                                 </div>
                                 <div style={{ animation: 'slideUp 1s ease 1s both', textAlign: 'center' }}>
                                     <div style={{ fontSize: '52px', fontWeight: 900, background: `linear-gradient(135deg, ${MAGENTA} 0%, #ff00ff 100%)`, backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '15px', textShadow: `0 0 40px ${MAGENTA}60`, letterSpacing: '2px' }}>
