@@ -87,11 +87,15 @@ export default function Admin() {
             });
             juror.teleTop10.forEach((score) => {
                 if (!totals[score.country]) totals[score.country] = { jury: 0, tele: 0, revealed: false };
-                if (revealedCountries.has(score.country)) {
-                    totals[score.country].tele += score.pts;
-                    totals[score.country].revealed = true;
-                }
+                totals[score.country].tele += score.pts;
             });
+        });
+        
+        // Mark any country in revealedCountries as revealed
+        Object.keys(totals).forEach(country => {
+            if (revealedCountries.has(country)) {
+                totals[country].revealed = true;
+            }
         });
         
         // Sort: first by jury+tele (where tele is revealed), then jury only
@@ -102,6 +106,22 @@ export default function Admin() {
             ])
             .sort((a, b) => b[1].total - a[1].total);
     }, [liveData, revealedCountries]);
+
+    const dockButtonStyle = {
+        padding: '12px 20px',
+        background: `linear-gradient(135deg, rgba(0, 229, 255, 0.2) 0%, rgba(0, 150, 200, 0.1) 100%)`,
+        border: `1px solid ${CYAN}50`,
+        color: 'white',
+        fontWeight: 800,
+        cursor: 'pointer',
+        borderRadius: '10px',
+        fontSize: '12px',
+        letterSpacing: '1px',
+        textTransform: 'uppercase',
+        transition: 'all 0.3s ease',
+        boxShadow: '0 2px 10px rgba(0,0,0,0.3)',
+        backdropFilter: 'blur(10px)'
+    };
 
     const revealNextTelevote = () => {
         // Reveal the country currently in the LAST position (lowest score) that hasn't been revealed yet
@@ -114,17 +134,23 @@ export default function Admin() {
                 setRevealingTelevote(country);
                 setTelevoteCounter(0);
                 
-                // Animate counter from 0 to final value over 1 second (starting at 1 second mark)
-                const startTime = Date.now() + 1000;
-                const interval = setInterval(() => {
-                    const elapsed = Math.max(0, Date.now() - startTime);
-                    const progress = Math.min(elapsed / 1000, 1); // 1 second animation
-                    setTelevoteCounter(Math.floor(progress * finalTelevote));
+                // Wait 1 second, then animate counter
+                setTimeout(() => {
+                    const startTime = Date.now();
+                    const duration = 1000; // 1 second animation
                     
-                    if (progress >= 1) {
-                        clearInterval(interval);
-                    }
-                }, 16); // ~60fps
+                    const animate = () => {
+                        const elapsed = Date.now() - startTime;
+                        const progress = Math.min(elapsed / duration, 1);
+                        setTelevoteCounter(Math.floor(progress * finalTelevote));
+                        
+                        if (progress < 1) {
+                            requestAnimationFrame(animate);
+                        }
+                    };
+                    
+                    animate();
+                }, 1000);
                 
                 // After 2.5 seconds, reveal the televote in leaderboard
                 setTimeout(() => {
@@ -153,8 +179,8 @@ export default function Admin() {
 
             {!liveData.length ? (
                 <div style={{ textAlign: 'center', marginTop: '100px' }}>
-                    <h1 style={{ letterSpacing: '4px' }}>BROADCAST SYSTEM STANDBY</h1>
-                    <button onClick={fetchJuryResults} style={adminStyles.mainBtn}>SYNC LIVE DATA</button>
+                    <h1 style={{ letterSpacing: '4px', fontSize: '48px', fontWeight: 900, background: `linear-gradient(135deg, ${CYAN} 0%, ${MAGENTA} 100%)`, backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '40px' }}>BROADCAST SYSTEM STANDBY</h1>
+                    <button onClick={fetchJuryResults} style={{ ...adminStyles.mainBtn, background: `linear-gradient(135deg, ${CYAN} 0%, #00b8e6 100%)`, boxShadow: `0 8px 30px ${CYAN}30`, padding: '18px 50px', fontSize: '16px' }}>SYNC LIVE DATA</button>
                 </div>
             ) : (
                 <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
@@ -163,8 +189,8 @@ export default function Admin() {
                         <div style={{ maxWidth: '1100px', margin: '0 auto' }}>
                             {!showLeaderboard ? (
                                 <div style={{ textAlign: 'center' }}>
-                                    <h1 style={{ fontSize: '72px', color: CYAN, margin: 0 }}>{liveData[revealIndex]?.name}</h1>
-                                    <p style={{ letterSpacing: '8px', color: '#64748b', marginBottom: '40px' }}>{liveData[revealIndex]?.location.toUpperCase()}</p>
+                                    <h1 style={{ fontSize: '72px', color: CYAN, margin: '0 0 10px 0', fontWeight: 900, textShadow: `0 0 30px ${CYAN}40` }}>{liveData[revealIndex]?.name}</h1>
+                                    <p style={{ letterSpacing: '8px', color: '#64748b', marginBottom: '40px', fontSize: '14px', fontWeight: 800, textTransform: 'uppercase' }}>{liveData[revealIndex]?.location.toUpperCase()}</p>
                                     
                                     <div style={adminStyles.pointGrid}>
                                         {liveData[revealIndex]?.juryTop10.slice(2).reverse().map((s, i) => (
@@ -195,14 +221,14 @@ export default function Admin() {
                                     )}
                                     
                                     {(showTen || showTwelve) && (
-                                        <button onClick={() => setShowLeaderboard(true)} style={{ ...adminStyles.mainBtn, background: MAGENTA, marginTop: '30px', padding: '15px 40px', fontSize: '16px' }}>
+                                        <button onClick={() => setShowLeaderboard(true)} style={{ ...adminStyles.mainBtn, background: `linear-gradient(135deg, ${MAGENTA} 0%, #c500cc 100%)`, boxShadow: `0 4px 20px ${MAGENTA}40, 0 0 40px ${MAGENTA}20` }}>
                                             ADD TO LEADERBOARD
                                         </button>
                                     )}
                                 </div>
                             ) : (
                                 <div>
-                                    <h1 style={{ textAlign: 'center', color: MAGENTA, letterSpacing: '4px', marginBottom: '30px' }}>JURY LEADERBOARD</h1>
+                                    <h1 style={{ textAlign: 'center', color: MAGENTA, letterSpacing: '4px', marginBottom: '30px', fontSize: '48px', fontWeight: 900, textShadow: `0 0 30px ${MAGENTA}40` }}>JURY LEADERBOARD</h1>
                                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
                                         <div>
                                             {jurorLeaderboard.slice(0, 13).map(([country, scores], idx) => (
@@ -235,8 +261,8 @@ export default function Admin() {
                     ) : (
                         <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
-                                <h1 style={{ textAlign: 'center', flex: 1, color: MAGENTA, letterSpacing: '4px', margin: 0 }}>LEADERBOARD</h1>
-                                <button onClick={revealNextTelevote} style={{ ...adminStyles.mainBtn, background: MAGENTA, padding: '15px 30px', fontSize: '14px' }} disabled={revealingTelevote !== null}>
+                                <h1 style={{ textAlign: 'center', flex: 1, color: MAGENTA, letterSpacing: '4px', margin: 0, fontSize: '48px', fontWeight: 900, textShadow: `0 0 30px ${MAGENTA}40` }}>LEADERBOARD</h1>
+                                <button onClick={revealNextTelevote} style={{ ...adminStyles.mainBtn, background: `linear-gradient(135deg, ${MAGENTA} 0%, #c500cc 100%)`, boxShadow: `0 4px 20px ${MAGENTA}40, 0 0 40px ${MAGENTA}20`, padding: '16px 28px', fontSize: '13px' }} disabled={revealingTelevote !== null}>
                                     REVEAL TELEVOTE
                                 </button>
                             </div>
@@ -277,16 +303,16 @@ export default function Admin() {
                     
                     {/* Televote Reveal Animation */}
                     {revealingTelevote && (
-                        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.95)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }}>
+                        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'linear-gradient(135deg, rgba(0,0,0,0.98) 0%, rgba(0,0,0,0.95) 100%)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000, backdropFilter: 'blur(20px)' }}>
                             <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '30px' }}>
                                 <div style={{ animation: 'slideUp 0.5s ease', fontSize: '120px' }}>
-                                    <img src={`/flags/${revealingTelevote}.png`} style={{ width: '300px', height: '200px', objectFit: 'cover', borderRadius: '10px' }} alt={revealingTelevote} />
+                                    <img src={`/flags/${revealingTelevote}.png`} style={{ width: '320px', height: '220px', objectFit: 'cover', borderRadius: '16px', boxShadow: `0 20px 60px rgba(0,0,0,0.8), 0 0 60px ${MAGENTA}30` }} alt={revealingTelevote} />
                                 </div>
                                 <div style={{ animation: 'slideUp 1s ease 1s both', textAlign: 'center' }}>
-                                    <div style={{ fontSize: '48px', fontWeight: 900, color: MAGENTA, textShadow: `0 0 20px ${MAGENTA}80`, marginBottom: '10px' }}>
-                                        +{televoteCounter} TELEVOTE POINTS
+                                    <div style={{ fontSize: '52px', fontWeight: 900, background: `linear-gradient(135deg, ${MAGENTA} 0%, #ff00ff 100%)`, backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', marginBottom: '15px', textShadow: `0 0 40px ${MAGENTA}60`, letterSpacing: '2px' }}>
+                                        +{televoteCounter} TELEVOTE
                                     </div>
-                                    <div style={{ fontSize: '72px', fontWeight: 900, color: CYAN }}>
+                                    <div style={{ fontSize: '76px', fontWeight: 900, background: `linear-gradient(135deg, ${CYAN} 0%, #00e5ff 100%)`, backgroundClip: 'text', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', textShadow: `0 0 40px ${CYAN}60`, letterSpacing: '2px' }}>
                                         = {(leaderboard.find(([c]) => c === revealingTelevote)?.[1]?.jury || 0) + televoteCounter} TOTAL
                                     </div>
                                 </div>
@@ -298,12 +324,12 @@ export default function Admin() {
 
             {/* Hidden Control Panel (Doesn't show on TV if you keep mouse off it) */}
             <div className="admin-dock" style={adminStyles.dock}>
-                <button onClick={() => { setView('reveal'); setRevealedCountries(new Set()); setShowLeaderboard(false); }}>Reveal View</button>
-                <button onClick={() => setView('leaderboard')}>Full Leaderboard</button>
-                <div style={{ width: '2px', background: '#334155', margin: '0 10px' }} />
-                <button onClick={() => setShowTen(true)}>Show 10</button>
-                <button onClick={() => setShowTwelve(true)}>Show 12</button>
-                <button onClick={() => setShowLeaderboard(!showLeaderboard)} style={{ background: showLeaderboard ? MAGENTA : 'inherit' }}>
+                <button onClick={() => { setView('reveal'); setRevealedCountries(new Set()); setShowLeaderboard(false); }} style={{ ...dockButtonStyle }}>Reveal View</button>
+                <button onClick={() => setView('leaderboard')} style={{ ...dockButtonStyle }}>Full Leaderboard</button>
+                <div style={{ width: '2px', background: 'rgba(100,116,139,0.3)', margin: '0 10px' }} />
+                <button onClick={() => setShowTen(true)} style={{ ...dockButtonStyle }}>Show 10</button>
+                <button onClick={() => setShowTwelve(true)} style={{ ...dockButtonStyle }}>Show 12</button>
+                <button onClick={() => setShowLeaderboard(!showLeaderboard)} style={{ ...dockButtonStyle, background: showLeaderboard ? `linear-gradient(135deg, ${MAGENTA} 0%, #c500cc 100%)` : 'inherit' }}>
                     {showLeaderboard ? 'Back to Juror' : 'Show Leaderboard'}
                 </button>
                 <button onClick={() => { 
@@ -313,19 +339,97 @@ export default function Admin() {
                         setShowTwelve(false);
                         setShowLeaderboard(false);
                     }
-                }}>Next Juror</button>
-                <button onClick={fetchJuryResults} style={{ background: CYAN, color: 'black' }}>Refresh</button>
+                }} style={{ ...dockButtonStyle }}>Next Juror</button>
+                <button onClick={fetchJuryResults} style={{ ...dockButtonStyle, background: `linear-gradient(135deg, ${CYAN} 0%, #00b8e6 100%)` }}>Refresh</button>
             </div>
         </div>
     );
 }
 
 const adminStyles = {
-    mainBtn: { padding: '20px 40px', background: CYAN, border: 'none', fontWeight: 900, cursor: 'pointer', borderRadius: '10px', marginTop: '20px' },
+    mainBtn: { 
+        padding: '14px 32px', 
+        background: `linear-gradient(135deg, ${CYAN} 0%, #00b8e6 100%)`,
+        border: 'none', 
+        fontWeight: 900, 
+        cursor: 'pointer', 
+        borderRadius: '12px', 
+        marginTop: '20px',
+        fontSize: '14px',
+        letterSpacing: '1px',
+        boxShadow: `0 4px 20px ${CYAN}40, 0 0 40px ${CYAN}20`,
+        transition: 'all 0.3s ease',
+        textTransform: 'uppercase'
+    },
     pointGrid: { display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px', marginBottom: '30px' },
-    pointRow: { background: '#111827', padding: '18px', textAlign: 'left', fontWeight: 800, borderLeft: `5px solid ${CYAN}`, fontSize: '18px', display: 'flex', alignItems: 'center', gap: '10px' },
-    tenBox: { background: '#1e293b', padding: '25px', borderRadius: '15px', border: `2px solid ${CYAN}`, fontSize: '18px', fontWeight: 900, marginBottom: '20px' },
-    twelveBox: { background: `linear-gradient(45deg, #2d004d, #000)`, padding: '40px', borderRadius: '15px', border: `4px solid ${MAGENTA}`, fontSize: '24px', fontWeight: 900, textShadow: '0 0 20px rgba(224, 0, 255, 0.5)' },
-    leaderboardRow: { background: '#0b101e', padding: '15px 25px', display: 'flex', justifyContent: 'space-between', fontWeight: 700, borderRadius: '8px', border: '1px solid #ffffff10' },
-    dock: { position: 'fixed', bottom: 0, left: 0, right: 0, padding: '15px', background: 'rgba(0,0,0,0.9)', display: 'flex', gap: '10px', justifyContent: 'center', opacity: 0.1, transition: 'opacity 0.3s' },
+    pointRow: { 
+        background: 'linear-gradient(135deg, rgba(1, 184, 230, 0.1) 0%, rgba(15, 23, 42, 0.5) 100%)',
+        padding: '18px', 
+        textAlign: 'left', 
+        fontWeight: 800, 
+        borderLeft: `3px solid ${CYAN}`, 
+        fontSize: '18px', 
+        display: 'flex', 
+        alignItems: 'center', 
+        gap: '10px',
+        borderRadius: '8px',
+        border: `1px solid ${CYAN}30`,
+        transition: 'all 0.3s ease',
+        backdropFilter: 'blur(10px)'
+    },
+    tenBox: { 
+        background: `linear-gradient(135deg, rgba(30, 41, 59, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%)`,
+        padding: '25px', 
+        borderRadius: '16px', 
+        border: `2px solid ${CYAN}`, 
+        fontSize: '18px', 
+        fontWeight: 900, 
+        marginBottom: '20px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: `0 8px 30px ${CYAN}20, inset 0 1px 0 rgba(255,255,255,0.1)`,
+        backdropFilter: 'blur(20px)'
+    },
+    twelveBox: { 
+        background: `linear-gradient(135deg, rgba(45, 0, 77, 0.8) 0%, rgba(15, 23, 42, 0.6) 100%)`, 
+        padding: '40px', 
+        borderRadius: '16px', 
+        border: `3px solid ${MAGENTA}`, 
+        fontSize: '24px', 
+        fontWeight: 900, 
+        textShadow: `0 0 20px rgba(224, 0, 255, 0.5)`,
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        boxShadow: `0 8px 30px ${MAGENTA}30, inset 0 1px 0 rgba(255,255,255,0.1)`,
+        backdropFilter: 'blur(20px)'
+    },
+    leaderboardRow: { 
+        background: 'linear-gradient(135deg, rgba(11, 16, 30, 0.8) 0%, rgba(15, 23, 42, 0.5) 100%)',
+        padding: '16px 24px', 
+        display: 'flex', 
+        justifyContent: 'space-between', 
+        fontWeight: 700, 
+        borderRadius: '12px', 
+        border: `1px solid rgba(0, 229, 255, 0.2)`,
+        transition: 'all 0.3s ease',
+        backdropFilter: 'blur(10px)',
+        boxShadow: '0 4px 12px rgba(0,0,0,0.3)'
+    },
+    dock: { 
+        position: 'fixed', 
+        bottom: 0, 
+        left: 0, 
+        right: 0, 
+        padding: '15px', 
+        background: 'linear-gradient(to top, rgba(0,0,0,0.95), rgba(0,0,0,0))',
+        display: 'flex', 
+        gap: '10px', 
+        justifyContent: 'center', 
+        opacity: 0.1, 
+        transition: 'opacity 0.3s',
+        flexWrap: 'wrap',
+        backdropFilter: 'blur(20px)'
+    },
 };
