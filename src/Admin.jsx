@@ -14,6 +14,7 @@ export default function Admin() {
     const [view, setView] = useState('reveal'); // 'reveal' or 'leaderboard'
     const [revealedCountries, setRevealedCountries] = useState(new Set()); // Track which countries have had televote revealed
     const [revealingTelevote, setRevealingTelevote] = useState(null); // Country currently revealing televote (flag + number animation)
+    const [televoteCounter, setTelevoteCounter] = useState(0); // Animated counter during reveal
 
     const fetchJuryResults = async () => {
         try {
@@ -66,7 +67,7 @@ export default function Admin() {
     const jurorLeaderboard = useMemo(() => {
         const totals = {};
         liveData.forEach((juror, idx) => {
-            if (idx >= revealIndex) return; // Only count juries up to current
+            if (idx > revealIndex) return; // Include juries up to and including current
             juror.juryTop10.forEach((score) => {
                 totals[score.country] = (totals[score.country] || 0) + score.pts;
             });
@@ -105,18 +106,35 @@ export default function Admin() {
     const revealNextTelevote = () => {
         // Reveal the country currently in the LAST position (lowest score) that hasn't been revealed yet
         for (let i = leaderboard.length - 1; i >= 0; i--) {
-            const [country] = leaderboard[i];
+            const [country, scores] = leaderboard[i];
             if (!revealedCountries.has(country)) {
+                const finalTelevote = scores.tele;
+                
                 // Start animation sequence
                 setRevealingTelevote(country);
+                setTelevoteCounter(0);
                 
-                // After 1 second, show the number and after 2.5 seconds, fade away
+                // Animate counter from 0 to final value over 1 second (starting at 1 second mark)
+                const startTime = Date.now() + 1000;
+                const interval = setInterval(() => {
+                    const elapsed = Math.max(0, Date.now() - startTime);
+                    const progress = Math.min(elapsed / 1000, 1); // 1 second animation
+                    setTelevoteCounter(Math.floor(progress * finalTelevote));
+                    
+                    if (progress >= 1) {
+                        clearInterval(interval);
+                    }
+                }, 16); // ~60fps
+                
+                // After 2.5 seconds, reveal the televote in leaderboard
                 setTimeout(() => {
                     setRevealedCountries(new Set([...revealedCountries, country]));
                 }, 2500);
                 
+                // After 3.5 seconds, fade away animation
                 setTimeout(() => {
                     setRevealingTelevote(null);
+                    setTelevoteCounter(0);
                 }, 3500);
                 break;
             }
@@ -232,7 +250,7 @@ export default function Admin() {
                                                 <span>{country}</span>
                                             </div>
                                             <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                                                <span style={{ color: MAGENTA, fontSize: '12px' }}>+{scores.tele} TELE</span>
+                                                {scores.revealed && <span style={{ color: MAGENTA, fontSize: '12px' }}>+{scores.tele} TELE</span>}
                                                 <span style={{ color: CYAN }}>{scores.total} PTS</span>
                                             </div>
                                         </div>
@@ -247,7 +265,7 @@ export default function Admin() {
                                                 <span>{country}</span>
                                             </div>
                                             <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
-                                                <span style={{ color: MAGENTA, fontSize: '12px' }}>+{scores.tele} TELE</span>
+                                                {scores.revealed && <span style={{ color: MAGENTA, fontSize: '12px' }}>+{scores.tele} TELE</span>}
                                                 <span style={{ color: CYAN }}>{scores.total} PTS</span>
                                             </div>
                                         </div>
@@ -266,10 +284,10 @@ export default function Admin() {
                                 </div>
                                 <div style={{ animation: 'slideUp 1s ease 1s both', textAlign: 'center' }}>
                                     <div style={{ fontSize: '48px', fontWeight: 900, color: MAGENTA, textShadow: `0 0 20px ${MAGENTA}80`, marginBottom: '10px' }}>
-                                        +{leaderboard.find(([c]) => c === revealingTelevote)?.[1]?.tele || 0} TELEVOTE POINTS
+                                        +{televoteCounter} TELEVOTE POINTS
                                     </div>
                                     <div style={{ fontSize: '72px', fontWeight: 900, color: CYAN }}>
-                                        = {leaderboard.find(([c]) => c === revealingTelevote)?.[1]?.total || 0} TOTAL
+                                        = {(leaderboard.find(([c]) => c === revealingTelevote)?.[1]?.jury || 0) + televoteCounter} TOTAL
                                     </div>
                                 </div>
                             </div>
