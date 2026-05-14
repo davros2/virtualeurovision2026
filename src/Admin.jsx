@@ -11,6 +11,7 @@ export default function Admin() {
     const [showTen, setShowTen] = useState(false);
     const [showTwelve, setShowTwelve] = useState(false);
     const [view, setView] = useState('reveal'); // 'reveal' or 'leaderboard'
+    const [revealedCountries, setRevealedCountries] = useState(new Set()); // Track which countries have had televote revealed
 
     const fetchJuryResults = async () => {
         try {
@@ -59,26 +60,48 @@ export default function Admin() {
         }
     };
 
-    // Calculate Grand Totals across ALL jurors
+    // Calculate Grand Totals across ALL jurors - only include revealed televote
     const leaderboard = useMemo(() => {
         const totals = {};
         liveData.forEach(juror => {
             juror.juryTop10.forEach((score) => {
-                totals[score.country] = (totals[score.country] || { jury: 0, tele: 0 });
+                if (!totals[score.country]) totals[score.country] = { jury: 0, tele: 0, revealed: false };
                 totals[score.country].jury += score.pts;
             });
             juror.teleTop10.forEach((score) => {
-                if (!totals[score.country]) totals[score.country] = { jury: 0, tele: 0 };
-                totals[score.country].tele += score.pts;
+                if (!totals[score.country]) totals[score.country] = { jury: 0, tele: 0, revealed: false };
+                if (revealedCountries.has(score.country)) {
+                    totals[score.country].tele += score.pts;
+                    totals[score.country].revealed = true;
+                }
             });
         });
-        return Object.entries(totals).sort((a, b) => b[1].jury - a[1].jury);
-    }, [liveData]);
+        
+        // Sort: first by jury+tele (where tele is revealed), then jury only
+        return Object.entries(totals)
+            .map(([country, scores]) => [
+                country, 
+                { ...scores, total: scores.jury + (scores.revealed ? scores.tele : 0) }
+            ])
+            .sort((a, b) => b[1].total - a[1].total);
+    }, [liveData, revealedCountries]);
+
+    const revealNextTelevote = () => {
+        // Reveal the country currently in the LAST position (lowest score) that hasn't been revealed yet
+        for (let i = leaderboard.length - 1; i >= 0; i--) {
+            const [country] = leaderboard[i];
+            if (!revealedCountries.has(country)) {
+                setRevealedCountries(new Set([...revealedCountries, country]));
+                break;
+            }
+        }
+    };
 
     return (
         <div style={{ minHeight: '100vh', background: '#050810', color: 'white', padding: '40px', fontFamily: 'sans-serif' }}>
             <style>{`
                 @keyframes pop { 0% { transform: scale(0.8); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
+                @keyframes slideUp { 0% { transform: translateY(20px); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
                 .reveal { animation: pop 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards; }
                 .grid-item { transition: all 0.5s ease; }
                 .admin-dock:hover { opacity: 1 !important; }
@@ -94,6 +117,9 @@ export default function Admin() {
                     
                     {view === 'reveal' ? (
                         <div style={{ textAlign: 'center' }}>
+                            <div style={{ width: '200px', height: '120px', margin: '0 auto 30px', position: 'relative', borderRadius: '10px', overflow: 'hidden' }}>
+                                <img src={`/flags/${liveData[revealIndex]?.juryTop10[0]?.country}.png`} style={{ width: '100%', height: '100%', objectFit: 'cover' }} alt={liveData[revealIndex]?.juryTop10[0]?.country} />
+                            </div>
                             <h1 style={{ fontSize: '72px', color: CYAN, margin: 0 }}>{liveData[revealIndex]?.name}</h1>
                             <p style={{ letterSpacing: '8px', color: '#64748b', marginBottom: '40px' }}>{liveData[revealIndex]?.location.toUpperCase()}</p>
                             
@@ -120,12 +146,20 @@ export default function Admin() {
                         </div>
                     ) : (
                         <div>
-                            <h1 style={{ textAlign: 'center', color: MAGENTA, letterSpacing: '4px' }}>LEADERBOARD</h1>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '30px' }}>
+                                <h1 style={{ textAlign: 'center', flex: 1, color: MAGENTA, letterSpacing: '4px', margin: 0 }}>LEADERBOARD</h1>
+                                <button onClick={revealNextTelevote} style={{ ...adminStyles.mainBtn, background: MAGENTA, padding: '15px 30px', fontSize: '14px' }}>
+                                    REVEAL TELEVOTE
+                                </button>
+                            </div>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginTop: '30px' }}>
                                 {leaderboard.map(([country, scores], idx) => (
-                                    <div key={country} style={adminStyles.leaderboardRow}>
+                                    <div key={country} style={{ ...adminStyles.leaderboardRow, transition: 'all 0.5s ease', opacity: scores.revealed ? 1 : 0.7 }}>
                                         <span>{idx + 1}. {country}</span>
-                                        <span style={{ color: CYAN }}>{scores.jury + scores.tele} PTS</span>
+                                        <div style={{ display: 'flex', gap: '15px', alignItems: 'center' }}>
+                                            {scores.revealed && <span style={{ color: MAGENTA, fontSize: '12px' }}>+{scores.tele} TELE</span>}
+                                            <span style={{ color: CYAN }}>{scores.total} PTS</span>
+                                        </div>
                                     </div>
                                 ))}
                             </div>
@@ -136,7 +170,7 @@ export default function Admin() {
 
             {/* Hidden Control Panel (Doesn't show on TV if you keep mouse off it) */}
             <div className="admin-dock" style={adminStyles.dock}>
-                <button onClick={() => setView('reveal')}>Reveal View</button>
+                <button onClick={() => { setView('reveal'); setRevealedCountries(new Set()); }}>Reveal View</button>
                 <button onClick={() => setView('leaderboard')}>Leaderboard View</button>
                 <div style={{ width: '2px', background: '#334155', margin: '0 10px' }} />
                 <button onClick={() => setShowTen(true)}>Show 10</button>
